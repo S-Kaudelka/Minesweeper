@@ -3,6 +3,7 @@ package engine;
 import entity.Field;
 
 import java.awt.Point;
+import java.awt.event.MouseEvent;
 
 public class MainLoop {
 
@@ -44,20 +45,24 @@ public class MainLoop {
             return;
         }
 
-        if (pointIsInBetween(click, 1, 10, 1, 10)) {
-            //Do something
-        }
-    }
+        int x = click.x / dimension;
+        int y = click.y / dimension;
 
-    private boolean pointIsInBetween(Point p, int minX, int maxX, int minY, int maxY) {
-        return p.x >= minX && p.x <= maxX && p.y >= minY && p.y <= maxY;
+        if (mouseButton == MouseEvent.BUTTON1) {
+            boolean continueGame = gameField[x][y].flipField();
+            if (!continueGame) {
+                stopGame = true;
+            }
+        } else {
+            gameField[x][y].changeMarked();
+        }
     }
 
     private void initializeFields(int height, int width) {
         gameField = new Field[height][width];
         for (int i = 0; i < height; i++) {
             for (int j = 0; j < width; j++) {
-                gameField[i][j] = new Field(i * dimension, j * dimension);
+                gameField[i][j] = new Field(i * dimension, j * dimension, dimension);
             }
         }
     }

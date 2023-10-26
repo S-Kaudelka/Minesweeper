@@ -14,9 +14,11 @@ public class Field {
     private boolean isFlipped = false;
     private int adjacentMines;
 
-    public Field(int x, int y) {
+    public Field(int x, int y, int dimension) {
         picture = GameWindow.getInstance().addPicture(getFileName("New"));
         picture.setPosition(x, y);
+        picture.setHeight(dimension);
+        picture.setWidth(dimension);
     }
 
     /**
@@ -42,7 +44,11 @@ public class Field {
     public void changeMarked() {
         if (!isFlipped) {
             isMarked = !isMarked;
-            changePicture(getFileName("Marked"));
+            if (isMarked) {
+                changePicture(getFileName("Marked"));
+            } else {
+                changePicture(getFileName("New"));
+            }
         }
     }
 
