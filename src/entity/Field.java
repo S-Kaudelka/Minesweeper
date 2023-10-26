@@ -3,6 +3,8 @@ package entity;
 import engine.GameWindow;
 import engine.Picture;
 
+import static entity.FieldNames.*;
+
 public class Field {
 
     private static final String PREFIX = "field";
@@ -15,7 +17,7 @@ public class Field {
     private int adjacentMines;
 
     public Field(int x, int y, int dimension) {
-        picture = GameWindow.getInstance().addPicture(getFileName("New"));
+        picture = GameWindow.getInstance().addPicture(getFileName(NEW));
         picture.setPosition(x, y);
         picture.setHeight(dimension);
         picture.setWidth(dimension);
@@ -32,10 +34,10 @@ public class Field {
         } else {
             isFlipped = true;
             if (isMine) {
-                changePicture(getFileName("Mine"));
+                changePicture(getFileName(MINE));
                 return false;
             } else {
-                changePicture(getFileName("Open" + adjacentMines));
+                changePicture(getFileName(OPEN));
                 return true;
             }
         }
@@ -45,9 +47,9 @@ public class Field {
         if (!isFlipped) {
             isMarked = !isMarked;
             if (isMarked) {
-                changePicture(getFileName("Marked"));
+                changePicture(getFileName(MARKED));
             } else {
-                changePicture(getFileName("New"));
+                changePicture(getFileName(NEW));
             }
         }
     }
@@ -55,9 +57,13 @@ public class Field {
     public void revealField() {
         if (!isFlipped) {
             if (isMarked) {
-                changePicture(getFileName("Marked" + isMine));
+                changePicture(getFileName(MARKED_REVEALED));
             } else {
-                changePicture(getFileName("Mine"));
+                if (isMine) {
+                    changePicture(getFileName(MINE));
+                } else {
+                    changePicture(getFileName(OPEN));
+                }
             }
         }
     }
@@ -66,7 +72,23 @@ public class Field {
         picture = GameWindow.getInstance().changePicture(picture, fileName);
     }
 
-    private String getFileName(String name) {
+    private String getFileName(FieldNames fieldName) {
+        String name;
+        switch (fieldName) {
+            case NEW:
+            case MINE:
+            case MARKED:
+                name = fieldName.getName();
+                break;
+            case OPEN:
+                name = fieldName.getName() + adjacentMines;
+                break;
+            case MARKED_REVEALED:
+                name = fieldName.getName() + isMine;
+                break;
+            default:
+                name = "";
+        }
         return PREFIX + name + SUFFIX;
     }
 

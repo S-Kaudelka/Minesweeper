@@ -70,4 +70,12 @@ public class MainLoop {
     public boolean isStopGame() {
         return stopGame;
     }
+
+    public void revealGameField() {
+        for (Field[] fields : gameField) {
+            for (Field field : fields) {
+                field.revealField();
+            }
+        }
+    }
 }

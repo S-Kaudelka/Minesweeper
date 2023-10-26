@@ -21,6 +21,7 @@ public class Controller implements Runnable {
 
             if (mainLoop.isStopGame()) {
                 stop();
+                mainLoop.revealGameField();
             }
             try {
                 //keep the game at a stable speed
