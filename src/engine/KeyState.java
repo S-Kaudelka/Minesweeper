@@ -1,4 +1,4 @@
-package Engine;
+package engine;
 
 import java.util.*;
 import java.awt.event.KeyEvent;
@@ -7,6 +7,7 @@ import java.awt.Point;
 public class KeyState {
     HashSet<String> set = new HashSet<>();
     Point lastMouseClickPosition;
+    int buttonClicked;
 
     Point mousePosition = new Point(0, 0);
 
@@ -34,12 +35,21 @@ public class KeyState {
         }
     }
 
+    public int getButtonClicked() {
+        synchronized (this) {
+            int button = buttonClicked;
+            buttonClicked = 0;
+            return button;
+        }
+    }
+
     public boolean isClickAvailable() {
         return lastMouseClickPosition != null;
     }
 
-    public void setNewMouseClick(Point p) {
+    public void setNewMouseClick(Point p, int button) {
         lastMouseClickPosition = p;
+        buttonClicked = button;
     }
 
     public Point getMousePosition() {

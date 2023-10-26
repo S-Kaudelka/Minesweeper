@@ -1,4 +1,4 @@
-package Engine;
+package engine;
 
 import javax.swing.*;
 import java.awt.*;
@@ -7,8 +7,8 @@ import java.util.*;
 import java.awt.event.*;
 
 public class GameWindow extends Canvas implements Runnable, KeyListener, MouseListener, MouseMotionListener {
-    public static final int GAME_WINDOW_WIDTH = 800;
-    public static final int GAME_WINDOW_HEIGHT = 600;
+    private final int GAME_WINDOW_WIDTH;
+    private final int GAME_WINDOW_HEIGHT;
 
     private final BufferStrategy strategy;
     private long lastLoopTime;
@@ -19,14 +19,28 @@ public class GameWindow extends Canvas implements Runnable, KeyListener, MouseLi
 
     private final KeyState keyState = new KeyState();
 
-    public static GameWindow getInstance() {
+    /**
+     * initializes the instance, if it doesn't exist
+     */
+    public static GameWindow getInstance(int height, int width) {
         if (instance == null) {
-            instance = new GameWindow();
+            instance = new GameWindow(height, width);
         }
         return instance;
     }
 
-    private GameWindow() {
+    /**
+     * does not initialize the instance, if it doesn't yet exist
+     * @return the instance or null
+     */
+    public static GameWindow getInstance() {
+        return instance;
+    }
+
+    private GameWindow(int height, int width) {
+        GAME_WINDOW_HEIGHT = height;
+        GAME_WINDOW_WIDTH = width;
+
         // create a frame to contain our game
 
         JFrame container = new JFrame("Game Window");
@@ -118,6 +132,16 @@ public class GameWindow extends Canvas implements Runnable, KeyListener, MouseLi
         }
     }
 
+    public Picture changePicture(Picture picture, String fileName) {
+        removePicture(picture);
+        return addPicture(fileName);
+    }
+
+    public Picture removePicture(Picture picture) {
+        sprites.remove(picture);
+        return null;
+    }
+
     public void stopRunning() {
         gameRunning = false;
         try {
@@ -164,7 +188,7 @@ public class GameWindow extends Canvas implements Runnable, KeyListener, MouseLi
     }
 
     public void mouseReleased(MouseEvent e) {
-        keyState.setNewMouseClick(e.getPoint());
+        keyState.setNewMouseClick(e.getPoint(), e.getButton());
     }
 
     public void mouseMoved(MouseEvent e) {

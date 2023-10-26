@@ -1,16 +1,21 @@
-package Engine;
+package engine;
 
-import java.awt.image.*;
-import java.net.URL;
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.geom.AffineTransform;
-import java.util.*;
-import java.util.logging.Logger;
+import java.awt.image.FilteredImageSource;
+import java.awt.image.ImageFilter;
+import java.awt.image.ImageProducer;
+import java.awt.image.RGBImageFilter;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Hashtable;
 
 public class Picture {
 
-    private static final Logger LOG = LogManager.getLogger(Picture.class);
+    private static final String imageFolderPath = "src/image/";
+
     private boolean visible;
     private int width;
     private int height;
@@ -24,18 +29,17 @@ public class Picture {
     private static final Hashtable<String, java.awt.Image> imageTable = new Hashtable<>();
 
     public Picture(String newFileName) {
-        fileName = newFileName;
+        fileName = imageFolderPath + newFileName;
 
         if (imageTable.containsKey(fileName)) {
             image = imageTable.get(fileName);
         } else {
-            URL url = this.getClass().getClassLoader().getResource(fileName);
             try {
-                assert url != null;
-                image = ImageIO.read(url);
+                Path path = Paths.get(fileName);
+                image = ImageIO.read(Files.newInputStream(path));
                 imageTable.put(fileName, image);
             } catch (Exception e) {
-                LOG.warning("Picture " + newFileName + " could not be loaded");
+                //TODO logging
             }
         }
         width = image.getWidth(null);
@@ -68,6 +72,14 @@ public class Picture {
 
     public void setY(int newY) {
         synchronized (this) {
+            y = newY;
+            updateAffine();
+        }
+    }
+
+    public void setPosition(int newX, int newY) {
+        synchronized (this) {
+            x = newX;
             y = newY;
             updateAffine();
         }

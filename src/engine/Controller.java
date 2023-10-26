@@ -1,4 +1,4 @@
-package Engine;
+package engine;
 
 public class Controller implements Runnable {
     public MainLoop mainLoop;
@@ -6,11 +6,12 @@ public class Controller implements Runnable {
     private boolean isRunning = true;
 
     /*
-       OPEN TO DOs:
+       OPEN TO DOs: everything
+       - add Error Text below the start button in the main menu
      */
 
-    public Controller() {
-        mainLoop = new MainLoop(GameWindow.getInstance());
+    public Controller(int height, int width) {
+        mainLoop = new MainLoop(height, width);
         new Thread(this).start();
     }
 
