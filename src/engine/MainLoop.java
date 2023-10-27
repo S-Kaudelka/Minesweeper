@@ -8,8 +8,8 @@ import java.awt.event.MouseEvent;
 public class MainLoop {
 
     private static final int dimension = 25;
+    private static final double mineRatio = 0.17;
 
-    private final GameWindow gameWindow;
     private final KeyState keyState;
 
     //height x width
@@ -20,22 +20,13 @@ public class MainLoop {
     public MainLoop(int height, int width) {
         int actualWidth = width * dimension;
         int actualHeight = height * dimension;
-        this.gameWindow = GameWindow.getInstance(actualHeight, actualWidth);
-        keyState = this.gameWindow.getKeyState();
-        initializeFields(height, width);
+        //initialize GameWindow and save reference to keyState
+        keyState = GameWindow.getInstance(actualHeight, actualWidth).getKeyState();
+        initializeFields(width, height);
     }
 
     public void run() {
-        checkKeyInput();
-
         checkMouseInput();
-
-    }
-
-    public void checkKeyInput() {
-        if (keyState.isPressed("B")) {
-            //Do something
-        }
     }
 
     public void checkMouseInput() {
@@ -58,17 +49,76 @@ public class MainLoop {
         }
     }
 
-    private void initializeFields(int height, int width) {
-        gameField = new Field[height][width];
-        for (int i = 0; i < height; i++) {
-            for (int j = 0; j < width; j++) {
+    private void initializeFields(int width, int height) {
+        int maxNumberMines = (int) (height * width * mineRatio);
+        gameField = new Field[width][height];
+        int minesPlaced = 0;
+        for (int i = 0; i < width; i++) {
+            for (int j = 0; j < height; j++) {
                 gameField[i][j] = new Field(i * dimension, j * dimension, dimension);
+                if (minesPlaced < maxNumberMines && placeMine()) {
+                    minesPlaced++;
+                    gameField[i][j].setMine(true);
+                }
+            }
+        }
+
+        for (int i = 0; i < width; i++) {
+            for (int j = 0; j < height; j++) {
+                countAdjacentMines(i, j);
             }
         }
     }
 
     public boolean isStopGame() {
         return stopGame;
+    }
+
+    /**
+     * generates a random number and checks it against the mineRatio
+     */
+    private boolean placeMine() {
+        int random = (int) (Math.random() * 100);
+        return random <= mineRatio * 100;
+    }
+
+    private void countAdjacentMines(int x, int y) {
+        int numberMines = 0;
+
+        if (x > 0) {
+            numberMines += checkFieldForMine(x - 1, y);
+            if (y > 0) {
+                numberMines += checkFieldForMine(x - 1, y - 1);
+            }
+            if (y < gameField[0].length - 1) {
+                numberMines += checkFieldForMine(x - 1, y + 1);
+            }
+        }
+        if (y > 0) {
+            numberMines += checkFieldForMine(x, y - 1);
+        }
+        if (y < gameField[0].length - 1) {
+            numberMines += checkFieldForMine(x, y + 1);
+        }
+        if (x < gameField.length - 1) {
+            numberMines += checkFieldForMine(x + 1, y);
+            if (y > 0) {
+                numberMines += checkFieldForMine(x + 1, y - 1);
+            }
+            if (y < gameField[0].length - 1) {
+                numberMines += checkFieldForMine(x + 1, y + 1);
+            }
+        }
+
+        gameField[x][y].setAdjacentMines(numberMines);
+    }
+
+    private int checkFieldForMine(int x, int y) {
+        if (gameField[x][y].isMine()) {
+            return 1;
+        } else {
+            return 0;
+        }
     }
 
     public void revealGameField() {

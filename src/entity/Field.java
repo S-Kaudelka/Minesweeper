@@ -96,6 +96,10 @@ public class Field {
         isMine = mine;
     }
 
+    public boolean isMine() {
+        return isMine;
+    }
+
     public void setAdjacentMines(int adjacentMines) {
         this.adjacentMines = adjacentMines;
     }
