@@ -103,4 +103,16 @@ public class Field {
     public void setAdjacentMines(int adjacentMines) {
         this.adjacentMines = adjacentMines;
     }
+
+    public int getAdjacentMines() {
+        return adjacentMines;
+    }
+
+    public boolean isFlipped() {
+        return isFlipped;
+    }
+
+    public boolean isMarked() {
+        return isMarked;
+    }
 }

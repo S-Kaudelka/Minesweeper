@@ -41,11 +41,49 @@ public class MainLoop {
 
         if (mouseButton == MouseEvent.BUTTON1) {
             boolean continueGame = gameField[x][y].flipField();
-            if (!continueGame) {
+            if (continueGame) {
+                revealAdjacentFields(x, y);
+            } else {
                 stopGame = true;
             }
         } else {
             gameField[x][y].changeMarked();
+        }
+    }
+
+    private void revealAdjacentFields(int x, int y) {
+        if (gameField[x][y].getAdjacentMines() == 0) {
+            if (x > 0) {
+                automaticallyFlipField(x - 1, y);
+                if (y > 0) {
+                    automaticallyFlipField(x - 1, y - 1);
+                }
+                if (y < gameField[0].length - 1) {
+                    automaticallyFlipField(x - 1, y + 1);
+                }
+            }
+            if (y > 0) {
+                automaticallyFlipField(x, y - 1);
+            }
+            if (y < gameField[0].length - 1) {
+                automaticallyFlipField(x, y + 1);
+            }
+            if (x < gameField.length - 1) {
+                automaticallyFlipField(x + 1, y);
+                if (y > 0) {
+                    automaticallyFlipField(x + 1, y - 1);
+                }
+                if (y < gameField[0].length - 1) {
+                    automaticallyFlipField(x + 1, y + 1);
+                }
+            }
+        }
+    }
+
+    private void automaticallyFlipField(int x, int y) {
+        if (!(gameField[x][y].isFlipped() || gameField[x][y].isMarked())) {
+            gameField[x][y].flipField();
+            revealAdjacentFields(x, y);
         }
     }
 
