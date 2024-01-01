@@ -7,14 +7,13 @@ import java.awt.image.FilteredImageSource;
 import java.awt.image.ImageFilter;
 import java.awt.image.ImageProducer;
 import java.awt.image.RGBImageFilter;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Hashtable;
 
 public class Picture {
-
-    private static final String imageFolderPath = "src/image/";
 
     private boolean visible;
     private int width;
@@ -29,17 +28,17 @@ public class Picture {
     private static final Hashtable<String, java.awt.Image> imageTable = new Hashtable<>();
 
     public Picture(String newFileName) {
-        fileName = imageFolderPath + newFileName;
+        fileName = newFileName;
 
         if (imageTable.containsKey(fileName)) {
             image = imageTable.get(fileName);
         } else {
             try {
-                Path path = Paths.get(fileName);
-                image = ImageIO.read(Files.newInputStream(path));
+                URL imageUrl = ClassLoader.getSystemResource(fileName);
+                image = ImageIO.read(imageUrl);
                 imageTable.put(fileName, image);
             } catch (Exception e) {
-                //TODO logging
+                System.out.println(e.getMessage());
             }
         }
         width = image.getWidth(null);
