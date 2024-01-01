@@ -137,17 +137,16 @@ public class GameWindow extends Canvas implements Runnable, KeyListener, MouseLi
         int y = picture.getY();
         int height = picture.getHeight();
         int width = picture.getWidth();
-        removePicture(picture);
         Picture newPicture = addPicture(fileName);
+        removePicture(picture);
         newPicture.setPosition(x, y);
         newPicture.setHeight(height);
         newPicture.setWidth(width);
         return newPicture;
     }
 
-    public Picture removePicture(Picture picture) {
+    public void removePicture(Picture picture) {
         sprites.remove(picture);
-        return null;
     }
 
     public void stopRunning() {

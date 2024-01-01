@@ -7,7 +7,6 @@ public class Controller implements Runnable {
 
     /*
        OPEN TO DOs: everything
-       - add Error Text below the start button in the main menu
        - improve distribution of mines
        - restart button
      */
