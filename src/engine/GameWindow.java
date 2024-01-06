@@ -6,7 +6,7 @@ import java.awt.image.BufferStrategy;
 import java.util.*;
 import java.awt.event.*;
 
-public class GameWindow extends Canvas implements Runnable, KeyListener, MouseListener, MouseMotionListener {
+public class GameWindow extends Canvas implements Runnable, KeyListener, MouseListener, MouseMotionListener, JavaUiInitializer {
     private final int GAME_WINDOW_WIDTH;
     private final int GAME_WINDOW_HEIGHT;
 
@@ -14,6 +14,11 @@ public class GameWindow extends Canvas implements Runnable, KeyListener, MouseLi
     private long lastLoopTime;
     private boolean gameRunning = true;
     private static GameWindow instance;
+
+    private final JLabel labelFieldsMarked;
+    private final JLabel labelNumberMines;
+
+    private boolean restartGame;
 
     private final Vector<Picture> sprites = new Vector<>();
 
@@ -31,6 +36,7 @@ public class GameWindow extends Canvas implements Runnable, KeyListener, MouseLi
 
     /**
      * does not initialize the instance, if it doesn't yet exist
+     *
      * @return the instance or null
      */
     public static GameWindow getInstance() {
@@ -56,6 +62,26 @@ public class GameWindow extends Canvas implements Runnable, KeyListener, MouseLi
         setBounds(0, 0, GAME_WINDOW_WIDTH, GAME_WINDOW_HEIGHT);
         panel.add(this);
 
+        //initializing the UIElements
+        int labelWidth = 110;
+        int buttonWidth = 110;
+        int xPositionLabel = (GAME_WINDOW_WIDTH - 2 * labelWidth) / 3;
+        int xPositionButton = (GAME_WINDOW_WIDTH - buttonWidth) / 2;
+        labelFieldsMarked = initializeLabel(xPositionLabel, 30, labelWidth, 20, 12, "Marked Fields: 0");
+        labelFieldsMarked.setHorizontalAlignment(SwingConstants.CENTER);
+        labelNumberMines = initializeLabel(2 * xPositionLabel + labelWidth, 30, labelWidth, 20, 12, "Placed Mines: 0");
+        labelNumberMines.setHorizontalAlignment(SwingConstants.CENTER);
+        JButton buttonRestart = initializeButton(xPositionButton, 10, buttonWidth, 20, 12, "Restart");
+        buttonRestart.addMouseListener(new MouseAdapter() {
+            public void mouseReleased(MouseEvent evt) {
+                restartGame(evt);
+            }
+        });
+
+        panel.add(labelFieldsMarked);
+        panel.add(labelNumberMines);
+        panel.add(buttonRestart);
+
         // Tell AWT not to bother repainting our canvas since we're
         // going to do that our self in accelerated mode
         setIgnoreRepaint(true);
@@ -65,13 +91,15 @@ public class GameWindow extends Canvas implements Runnable, KeyListener, MouseLi
         container.setResizable(false);
         container.setVisible(true);
 
+        container.add(this);
+
         // create the buffering strategy which will allow AWT
         // to manage our accelerated graphics
         createBufferStrategy(2);
         strategy = getBufferStrategy();
 
         new Thread(this).start();
-        //addHierarchyListener(this);
+
         addKeyListener(this);
 
         addMouseMotionListener(this);
@@ -90,7 +118,7 @@ public class GameWindow extends Canvas implements Runnable, KeyListener, MouseLi
             // Get hold of a graphics context for the accelerated 
             // surface and blank it out
             Graphics2D g = (Graphics2D) strategy.getDrawGraphics();
-            g.setColor(Color.white);
+            g.setColor(new Color(238, 238, 238));
             g.fillRect(0, 0, GAME_WINDOW_WIDTH, GAME_WINDOW_HEIGHT);
 
             synchronized (sprites) {
@@ -149,6 +177,22 @@ public class GameWindow extends Canvas implements Runnable, KeyListener, MouseLi
         sprites.remove(picture);
     }
 
+    public void setNumberMines(int numberMines) {
+        labelNumberMines.setText("Placed Mines: " + numberMines);
+    }
+
+    public void setNumberMarked(int numberMarked) {
+        labelFieldsMarked.setText("Marked Fields: " + numberMarked);
+    }
+
+    private void restartGame(MouseEvent ignore) {
+        restartGame = true;
+    }
+
+    public void gameHasBeenRestarted() {
+        restartGame = false;
+    }
+
     public void stopRunning() {
         gameRunning = false;
         try {
@@ -204,6 +248,10 @@ public class GameWindow extends Canvas implements Runnable, KeyListener, MouseLi
 
     public void mouseDragged(MouseEvent e) {
 
+    }
+
+    public boolean isRestartGame() {
+        return restartGame;
     }
 }
 

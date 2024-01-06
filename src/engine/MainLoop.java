@@ -9,8 +9,11 @@ public class MainLoop {
 
     private static final int dimension = 25;
     private static final double mineRatio = 0.17;
+    private static final int offsetAtTop = 50;
 
     private final KeyState keyState;
+
+    private int numberMarked = 0;
 
     //height x width
     private Field[][] gameField;
@@ -19,7 +22,7 @@ public class MainLoop {
 
     public MainLoop(int height, int width) {
         int actualWidth = width * dimension;
-        int actualHeight = height * dimension;
+        int actualHeight = height * dimension + offsetAtTop;
         //initialize GameWindow and save reference to keyState
         keyState = GameWindow.getInstance(actualHeight, actualWidth).getKeyState();
         initializeFields(width, height);
@@ -36,8 +39,12 @@ public class MainLoop {
             return;
         }
 
+        if (click.y - offsetAtTop < 0) {
+            return;
+        }
+
         int x = click.x / dimension;
-        int y = click.y / dimension;
+        int y = (click.y - offsetAtTop) / dimension;
 
         if (mouseButton == MouseEvent.BUTTON1) {
             boolean continueGame = gameField[x][y].flipField();
@@ -48,6 +55,13 @@ public class MainLoop {
             }
         } else {
             gameField[x][y].changeMarked();
+            if (gameField[x][y].isMarked()) {
+                numberMarked++;
+            } else {
+                numberMarked--;
+            }
+
+            GameWindow.getInstance().setNumberMarked(numberMarked);
         }
     }
 
@@ -93,13 +107,15 @@ public class MainLoop {
         int minesPlaced = 0;
         for (int i = 0; i < width; i++) {
             for (int j = 0; j < height; j++) {
-                gameField[i][j] = new Field(i * dimension, j * dimension, dimension);
-                if (minesPlaced < maxNumberMines && placeMine()) {
+                gameField[i][j] = new Field(i * dimension, j * dimension + offsetAtTop, dimension);
+                if (minesPlaced < maxNumberMines && placeMineRNG()) {
                     minesPlaced++;
                     gameField[i][j].setMine(true);
                 }
             }
         }
+
+        GameWindow.getInstance().setNumberMines(minesPlaced);
 
         for (int i = 0; i < width; i++) {
             for (int j = 0; j < height; j++) {
@@ -113,9 +129,10 @@ public class MainLoop {
     }
 
     /**
-     * generates a random number and checks it against the mineRatio
+     * generates a random number and checks it against the mineRatio to determine,
+     * whether a Mine should be placed
      */
-    private boolean placeMine() {
+    private boolean placeMineRNG() {
         int random = (int) (Math.random() * 100);
         return random <= mineRatio * 100;
     }
