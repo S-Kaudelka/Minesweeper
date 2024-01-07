@@ -5,6 +5,7 @@ public class Controller implements Runnable {
 
     private boolean isRunning = true;
     private boolean roundActive = true;
+    private boolean hasBeenRevealed = false;
 
     private final int height;
     private final int width;
@@ -27,15 +28,18 @@ public class Controller implements Runnable {
                 mainLoop.run();
             }
 
-            if (mainLoop.isStopGame()) {
+            if (mainLoop.isStopGame() && !hasBeenRevealed) {
                 roundActive = false;
                 mainLoop.revealGameField();
+                hasBeenRevealed = true;
             }
             GameWindow gameWindow = GameWindow.getInstance();
             if (gameWindow.isRestartGame()) {
+                mainLoop.hideVictoryImage();
                 mainLoop = new MainLoop(height, width);
                 roundActive = true;
                 gameWindow.gameHasBeenRestarted();
+                hasBeenRevealed = false;
             }
             try {
                 //keep the game at a stable speed

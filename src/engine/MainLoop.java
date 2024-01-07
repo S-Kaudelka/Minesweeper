@@ -14,9 +14,12 @@ public class MainLoop {
     private final KeyState keyState;
 
     private int numberMarked = 0;
+    private int numberMinesPlaced;
 
     //height x width
     private Field[][] gameField;
+
+    private Picture victory;
 
     private boolean stopGame = false;
 
@@ -24,8 +27,11 @@ public class MainLoop {
         int actualWidth = width * dimension;
         int actualHeight = height * dimension + offsetAtTop;
         //initialize GameWindow and save reference to keyState
-        keyState = GameWindow.getInstance(actualHeight, actualWidth).getKeyState();
+        GameWindow g = GameWindow.getInstance(actualHeight, actualWidth);
+        keyState = g.getKeyState();
         initializeFields(width, height);
+        g.showLabels();
+        initializeVictoryImage();
     }
 
     public void run() {
@@ -62,6 +68,11 @@ public class MainLoop {
             }
 
             GameWindow.getInstance().setNumberMarked(numberMarked);
+
+            //it happens here, so it is only checked when the number of marked fields changes, as only then victory can be reached
+            if (numberMarked == numberMinesPlaced) {
+                checkVictory();
+            }
         }
     }
 
@@ -115,6 +126,7 @@ public class MainLoop {
             }
         }
 
+        numberMinesPlaced = minesPlaced;
         GameWindow.getInstance().setNumberMines(minesPlaced);
 
         for (int i = 0; i < width; i++) {
@@ -182,5 +194,31 @@ public class MainLoop {
                 field.revealField();
             }
         }
+    }
+
+    private void initializeVictoryImage() {
+        GameWindow g = GameWindow.getInstance();
+        victory = g.addPicture("victory.png");
+        victory.setHeight(20);
+        int posX = (g.getGameWindowWidth() - victory.getWidth()) / 2;
+        victory.setPosition(posX, -20);
+    }
+
+    private void checkVictory() {
+        for (Field[] fields : gameField) {
+            for (Field field : fields) {
+                if (field.isMarked() && !field.isMine()) {
+                    return;
+                }
+            }
+        }
+        //all mines are marked and nothing else is marked -> victory
+        victory.setY(30);
+        GameWindow.getInstance().hideLabels();
+        stopGame = true;
+    }
+
+    public void hideVictoryImage() {
+        victory.setY(-20);
     }
 }

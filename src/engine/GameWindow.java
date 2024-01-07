@@ -11,8 +11,6 @@ public class GameWindow extends Canvas implements Runnable, KeyListener, MouseLi
     private final int GAME_WINDOW_HEIGHT;
 
     private final BufferStrategy strategy;
-    private long lastLoopTime;
-    private boolean gameRunning = true;
     private static GameWindow instance;
 
     private final JLabel labelFieldsMarked;
@@ -108,12 +106,14 @@ public class GameWindow extends Canvas implements Runnable, KeyListener, MouseLi
     }
 
     public void run() {
-        while (gameRunning) {
+        while (true) {
             // work out how long it's been since the last update, this
             // will be used to calculate how far the entities should
             // move this loop
-            long delta = System.currentTimeMillis() - lastLoopTime;
-            lastLoopTime = System.currentTimeMillis();
+//            long delta = System.currentTimeMillis() - lastLoopTime;
+//            lastLoopTime = System.currentTimeMillis();
+
+            //maybe do something with this at some point ¯\_(ツ)_/¯
 
             // Get hold of a graphics context for the accelerated 
             // surface and blank it out
@@ -165,6 +165,7 @@ public class GameWindow extends Canvas implements Runnable, KeyListener, MouseLi
         int y = picture.getY();
         int height = picture.getHeight();
         int width = picture.getWidth();
+        picture.setY(-height);
         Picture newPicture = addPicture(fileName);
         removePicture(picture);
         newPicture.setPosition(x, y);
@@ -191,23 +192,6 @@ public class GameWindow extends Canvas implements Runnable, KeyListener, MouseLi
 
     public void gameHasBeenRestarted() {
         restartGame = false;
-    }
-
-    public void stopRunning() {
-        gameRunning = false;
-        try {
-            Thread.sleep(1000);
-        } catch (Exception ignored) {
-        }
-        synchronized (sprites) {
-            sprites.clear();
-        }
-        instance = null;
-    }
-
-    public void hierarchyChanged(HierarchyEvent e) {
-        gameRunning = false;
-
     }
 
     public void keyPressed(KeyEvent e) {
@@ -252,6 +236,20 @@ public class GameWindow extends Canvas implements Runnable, KeyListener, MouseLi
 
     public boolean isRestartGame() {
         return restartGame;
+    }
+
+    public int getGameWindowWidth(){
+        return GAME_WINDOW_WIDTH;
+    }
+
+    public void hideLabels() {
+        labelFieldsMarked.setVisible(false);
+        labelNumberMines.setVisible(false);
+    }
+
+    public void showLabels() {
+        labelFieldsMarked.setVisible(true);
+        labelNumberMines.setVisible(true);
     }
 }
 
